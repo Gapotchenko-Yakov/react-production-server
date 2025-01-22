@@ -1,16 +1,23 @@
 const fs = require('fs');
 const jsonServer = require('json-server');
+const cors = require('cors');
 const path = require('path');
 
 const server = jsonServer.create();
-
 const router = jsonServer.router(path.resolve(__dirname, 'db.json'));
 
+// Enable CORS
+const corsOptions = {
+    origin: 'https://679132531938a0007e0bd224--react-production-gapotchenko-yakov.netlify.app', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+server.use(cors(corsOptions));
 server.use(jsonServer.defaults({}));
 server.use(jsonServer.bodyParser);
 
-
-// Эндпоинт для логина
+// Endpoint for login
 server.post('/login', (req, res) => {
     try {
         const { username, password } = req.body;
@@ -32,8 +39,7 @@ server.post('/login', (req, res) => {
     }
 });
 
-// проверяем, авторизован ли пользователь
-// eslint-disable-next-line
+// Check if the user is authorized
 server.use((req, res, next) => {
     if (!req.headers.authorization) {
         return res.status(403).json({ message: 'AUTH ERROR' });
@@ -44,7 +50,7 @@ server.use((req, res, next) => {
 
 server.use(router);
 
-// запуск сервера
+// Start the server
 server.listen(8000, () => {
     console.log('server is running on 8000 port');
 });
